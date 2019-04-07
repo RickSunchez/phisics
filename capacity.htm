@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Изменение параметров конденсатора</title>
+	<script type="text/javascript">
+		window.onload = () => {
+			var W = 500;
+			var H = 400;
+			canvas = document.getElementById("canvas");
+			canvas.width = W;
+			canvas.height = H;
+		}
+
+		function change() {
+			ESDV = document.getElementsByClassName("ESDV");
+			SDV  = document.getElementsByClassName("values");
+
+			E = parseFloat(ESDV[0].value);
+			S = parseFloat(ESDV[1].value) * Math.pow(10, parseInt(SDV[0].value));
+			D = parseFloat(ESDV[2].value) * Math.pow(10, parseInt(SDV[1].value));
+			V = parseFloat(ESDV[3].value) * Math.pow(10, parseInt(SDV[2].value));
+
+			cap = C(E,S,D);
+			crg = q(V,cap);
+
+			document.getElementById("result").innerHTML = "C = "+ExpToDec(cap+"")+"; q = "+ExpToDec(crg+"");
+		}
+
+		function ExpToDec(num) {
+			var data = num.split(/[Ee]/);
+			console.log(data);
+			var str = Math.round(parseFloat(data[0])*1000)/1000;
+			if (data.length == 1) return str
+
+			str += "x10<sup>" + data[1] + "</sup>"
+			return str;
+		}
+		function q(Volts, Capacity) {
+			return Volts * Capacity
+		}
+		function C(Eps, Sq, Dist) {
+			var Eps0 = 8.85 * Math.pow(10, -12);
+			return (Eps0 * Eps * Sq) / Dist
+		}
+	</script>
+	<style type="text/css">
+		*{
+			margin: 0;
+			padding: 0;
+		}
+		#main {
+			width: calc(500px + 70px * 3);
+			height: 400px;
+			position: relative;
+			left: calc(50% - (500px + 70px * 3) / 2);
+			top: calc(50vh - 400px / 2);
+		}
+			#canvas {
+				position: absolute;
+				left: 0px;
+				top: 0px;
+			}
+			#settings {
+				position: absolute;
+				left: 500px;
+				top: calc(200px - (30px * 5) / 2);
+			}
+				table th, table td {
+					width: 70px;
+					height: 30px;
+				}
+				table tr td:first-child {
+					text-align: right
+				}
+				table input {
+					width: 70px;
+				}
+		#result {
+			position: fixed;
+			left: 15px;
+			font: bold 25px;
+			top: 15px;
+		}
+	</style>
+</head>
+<body>
+	<div id="main">
+		<canvas id="canvas"></canvas>
+		<div id="settings">
+			<table>
+				<tr>
+					<th>Величина</th>
+					<th>Значение</th>
+					<th>Ед.изм.</th>
+				</tr>
+				<tr>
+					<td><i>ε = </i></td>
+					<td><input type="number" min="1.0" class="ESDV" value="1.0" oninput="change()"></td>
+					<td>-</td>
+				</tr>
+				<tr>
+					<td><i>s = </i></td>
+					<td><input type="number" min="1.0" class="ESDV" value="1.0" oninput="change()"></td>
+					<td>
+						<select class="values">
+							<option value="-6">мм&sup2</option>
+							<option value="-4">cм&sup2</option>
+							<option value="0">м&sup2</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td><i>d = </i></td>
+					<td><input type="number" min="1.0" class="ESDV" value="1.0" oninput="change()"></td>
+					<td>
+						<select class="values">
+							<option value="-3">мм</option>
+							<option value="-2">cм</option>
+							<option value="0">м</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td><i>V = </i></td>
+					<td><input type="number" min="1.0" class="ESDV" value="1.0" oninput="change()"></td>
+					<td>
+						<select class="values">
+							<option value="-3">мВ</option>
+							<option value="0">В</option>
+						</select>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<div id="result"></div>
+</body>
+</html>
