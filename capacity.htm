@@ -3,12 +3,21 @@
 <head>
 	<title>Изменение параметров конденсатора</title>
 	<script type="text/javascript">
+		var ctx, W, H;
+		HTMLCollection.prototype.filter = Array.prototype.filter;
+
 		window.onload = () => {
-			var W = 500;
-			var H = 400;
+			W = 500;
+			H = 400;
 			canvas = document.getElementById("canvas");
 			canvas.width = W;
 			canvas.height = H;
+
+			ctx = canvas.getContext("2d");
+
+			//drawBattery(25, H/2-60, "1 В");
+			//drawCapacity(W/2-20, H/2-20,40,1,1); //x,y,s,d,e
+			change();
 		}
 
 		function change() {
@@ -24,15 +33,132 @@
 			crg = q(V,cap);
 
 			document.getElementById("result").innerHTML = "C = "+ExpToDec(cap+"")+"; q = "+ExpToDec(crg+"");
+
+			ctx.clearRect(0,0,W,H);
+
+			
+			/*var volts = ESDV[3].value + " " +SDV[2].children.filter(n => n.selected)[0].innerText;
+
+			drawBattery(25, H/2-60, volts);*/
+
+			drawS = parseFloat(ESDV[1].value);
+			drawD = parseFloat(ESDV[2].value);
+			drawE = parseFloat(ESDV[0].value);
+
+			drawCapacity(W/2 - (40+drawS+drawS/2)/2, H/2-(40+drawS)/2,40+drawS,drawD,255-drawE); //x,y,s,d,e
+
+			var inputs  = document.getElementsByTagName("input").filter(n => n.type == "range");
+			var _values = document.getElementsByClassName("_value");
+
+			for (let i=0; i<inputs.length; i++) {
+				_values[i].innerText = inputs[i].value
+			}
+		}
+		function drawBattery(x,y, Volts) {
+			var w = 50;
+			var h = 120;
+			var arc = 10;
+
+			ctx.beginPath();
+				ctx.fillStyle = "black";
+				ctx.fillRect(x+w/2-10,y,20,5);
+			ctx.closePath();
+
+			y+=5;
+
+			ctx.beginPath();
+				gradient = ctx.createLinearGradient(x,y,x,y+h)
+					gradient.addColorStop(0, "white");
+					gradient.addColorStop(0.3, "white");
+					gradient.addColorStop(0.3+0.001, "#69E665");
+					gradient.addColorStop(1, "#69E665");
+
+				ctx.moveTo(x+arc, y);
+				ctx.lineTo(x+w-arc, y);
+				ctx.quadraticCurveTo(x+w,y+0,x+w,y+arc);
+				ctx.lineTo(x+w, y+h-arc);
+				ctx.quadraticCurveTo(x+w,y+h,x+w-arc,y+h);
+				ctx.lineTo(x+arc, y+h);
+				ctx.quadraticCurveTo(x,y+h,x,y+h-arc);
+				ctx.lineTo(x, y+arc);
+				ctx.quadraticCurveTo(x,y,x+arc,y);
+				ctx.stroke();
+				ctx.fillStyle = gradient;
+				ctx.fill();
+			ctx.closePath();
+
+			ctx.beginPath();
+				ctx.fillStyle = "black";
+				ctx.font = "bold 30px Arial";
+				ctx.fillText("+", x+w/2-9, y+30);
+				ctx.fillStyle = "white";
+				ctx.fillText("-", x+w/2-5, y+h-10);	
+			ctx.closePath();
+
+			ctx.beginPath();
+				ctx.fillStyle = "black";
+				ctx.font = "bold 30px Arial";
+				ctx.fillText(Volts, x+w+5, y+30);
+			ctx.closePath();
+		}
+
+		function drawCapacity(x,y,s,d,e, Capacity) {
+			var w = s;
+			var h = s/2;
+			var sh = s/4;
+
+			ctx.beginPath();
+				ctx.moveTo(x+sh,y+d/2);
+				ctx.lineTo(x+sh+w,y+d/2);
+				ctx.lineTo(x+w,y+h+d/2);
+				ctx.lineTo(x,y+h+d/2);
+				ctx.lineTo(x+sh,y+d/2);
+
+				ctx.moveTo(x+(w+sh)/2,y+h/2+d/2);
+				ctx.lineTo(x+(w+sh)/2,y+2*h+d/2);
+				ctx.strokeStyle = "black";
+				ctx.stroke();
+				ctx.fillStyle = "white";
+				ctx.fill();
+			ctx.closePath();
+
+			ctx.beginPath();
+				ctx.moveTo(x,y+h-d/2);
+				ctx.lineTo(x+w,y+h-d/2);
+				ctx.lineTo(x+w+sh,y-d/2);
+				ctx.lineTo(x+w+sh,y+d/2);
+				ctx.lineTo(x+w,y+h+d/2);
+				ctx.lineTo(x,y+h+d/2);
+				ctx.lineTo(x,y+h-d/2);
+				ctx.fillStyle = "rgba("+e+","+e+","+e+",0.8)"
+				ctx.fill();
+			ctx.closePath();
+
+			ctx.beginPath();
+				ctx.moveTo(x+sh,y-d/2);
+				ctx.lineTo(x+sh+w,y-d/2);
+				ctx.lineTo(x+w,y+h-d/2);
+				ctx.lineTo(x,y+h-d/2);
+				ctx.lineTo(x+sh,y-d/2);
+
+				ctx.moveTo(x+(w+sh)/2,y+h/2-d/2);
+				ctx.lineTo(x+(w+sh)/2,y-h-d/2);
+				ctx.strokeStyle = "black";
+				ctx.fillStyle = "white";
+				ctx.fill();
+				ctx.stroke();
+			ctx.closePath();
 		}
 
 		function ExpToDec(num) {
 			var data = num.split(/[Ee]/);
-			console.log(data);
-			var str = Math.round(parseFloat(data[0])*1000)/1000;
-			if (data.length == 1) return str
+			var str = data[0];
 
-			str += "x10<sup>" + data[1] + "</sup>"
+			if (data.length > 1) {
+				str = Math.round(parseFloat(data[0])*1000)/1000;
+				str += "x10<sup>" + data[1] + "</sup>"
+			}
+
 			return str;
 		}
 		function q(Volts, Capacity) {
@@ -76,10 +202,13 @@
 					width: 70px;
 				}
 		#result {
+			width: 500px;
+			text-align: center;
 			position: fixed;
-			left: 15px;
+			left: calc(50% - 250px);
 			font: bold 25px;
-			top: 15px;
+			top: 250px;
+			font: bold 25px Arial;
 		}
 	</style>
 </head>
@@ -90,20 +219,22 @@
 			<table>
 				<tr>
 					<th>Величина</th>
-					<th>Значение</th>
+					<th colspan="2">Значение</th>
 					<th>Ед.изм.</th>
 				</tr>
 				<tr>
 					<td><i>ε = </i></td>
-					<td><input type="number" min="1.0" class="ESDV" value="1.0" oninput="change()"></td>
+					<td><input type="range" min="1.0" max="255.0" class="ESDV" value="1.0" oninput="change()"></td>
+					<td><span class="_value"></span></td>
 					<td>-</td>
 				</tr>
 				<tr>
 					<td><i>s = </i></td>
-					<td><input type="number" min="1.0" class="ESDV" value="1.0" oninput="change()"></td>
+					<td><input type="range" min="1.0" max="200.0" class="ESDV" value="1.0" oninput="change()"></td>
+					<td><span class="_value"></span></td>
 					<td>
 						<select class="values">
-							<option value="-6">мм&sup2</option>
+							<option value="-6" selected>мм&sup2</option>
 							<option value="-4">cм&sup2</option>
 							<option value="0">м&sup2</option>
 						</select>
@@ -111,10 +242,11 @@
 				</tr>
 				<tr>
 					<td><i>d = </i></td>
-					<td><input type="number" min="1.0" class="ESDV" value="1.0" oninput="change()"></td>
+					<td><input type="range" min="1.0" max="100.0" class="ESDV" value="1.0" oninput="change()"></td>
+					<td><span class="_value"></span></td>
 					<td>
 						<select class="values">
-							<option value="-3">мм</option>
+							<option value="-3" selected>мм</option>
 							<option value="-2">cм</option>
 							<option value="0">м</option>
 						</select>
@@ -123,10 +255,11 @@
 				<tr>
 					<td><i>V = </i></td>
 					<td><input type="number" min="1.0" class="ESDV" value="1.0" oninput="change()"></td>
+					<td><span class="_value"></span></td>
 					<td>
 						<select class="values">
 							<option value="-3">мВ</option>
-							<option value="0">В</option>
+							<option value="0" selected>В</option>
 						</select>
 					</td>
 				</tr>
