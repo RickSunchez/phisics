@@ -32,7 +32,7 @@
 			cap = C(E,S,D);
 			crg = q(V,cap);
 
-			document.getElementById("result").innerHTML = "C = "+ExpToDec(cap+"")+"; q = "+ExpToDec(crg+"");
+			document.getElementById("result").innerHTML = "C = "+ExpToDec(cap+"")+";<br> q = "+ExpToDec(crg+"");
 
 			ctx.clearRect(0,0,W,H);
 
@@ -206,7 +206,7 @@
 			text-align: center;
 			position: fixed;
 			left: calc(50% - 250px);
-			font: bold 25px;
+			font: 25px;
 			top: 250px;
 			font: bold 25px Arial;
 		}
@@ -233,7 +233,7 @@
 					<td><input type="range" min="1.0" max="200.0" class="ESDV" value="1.0" oninput="change()"></td>
 					<td><span class="_value"></span></td>
 					<td>
-						<select class="values">
+						<select class="values" oninput="change()">
 							<option value="-6" selected>мм&sup2</option>
 							<option value="-4">cм&sup2</option>
 							<option value="0">м&sup2</option>
@@ -245,7 +245,7 @@
 					<td><input type="range" min="1.0" max="100.0" class="ESDV" value="1.0" oninput="change()"></td>
 					<td><span class="_value"></span></td>
 					<td>
-						<select class="values">
+						<select class="values" oninput="change()">
 							<option value="-3" selected>мм</option>
 							<option value="-2">cм</option>
 							<option value="0">м</option>
@@ -257,7 +257,7 @@
 					<td><input type="number" min="1.0" class="ESDV" value="1.0" oninput="change()"></td>
 					<td><span class="_value"></span></td>
 					<td>
-						<select class="values">
+						<select class="values" oninput="change()">
 							<option value="-3">мВ</option>
 							<option value="0" selected>В</option>
 						</select>
