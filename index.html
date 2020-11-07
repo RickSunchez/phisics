@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Изменение параметров конденсатора</title>
+	<meta charset="utf-8">
+	<script type="text/javascript" src="scripts/capacity_class.js"></script>
+	<script type="text/javascript" src="scripts/sub.js"></script>
+	<script type="text/javascript">
+		window.onload = () => {
+			const WIDTH = 500;
+			const HEIGHT = 400;
+
+			canvas = document.getElementById("canvas");
+			canvas.width  = WIDTH;
+			canvas.height = HEIGHT;
+
+			context = canvas.getContext("2d");
+			
+			var capacity = new Capacity(context);
+
+			update(capacity);
+
+			for (let node of document.querySelectorAll(".val_elem")) {
+				node.addEventListener("input", (ev) => {
+					update(capacity);
+				})
+			}
+
+			for (let node of document.querySelectorAll("input[type=range]")) {
+				let label = document.querySelector("label[for="+node.id+"]");
+				label.innerText = node.value;
+				node.addEventListener("input", (ev) => {
+					let label = document.querySelector("label[for="+ev.target.id+"]");
+					label.innerText = ev.target.value;
+				})
+			}
+		}
+
+		function update(capacity) {
+			let ESDV = Array
+				.from(document.querySelectorAll(".ESDV"))
+				.map(node => {
+					return parseFloat(node.value);
+				});
+			let SDV = Array
+				.from(document.querySelectorAll(".values"))
+				.map(node => {
+					return parseFloat(node.value);
+				});
+
+			let E = ESDV[0];
+			let S = ESDV[1] * Math.pow(10, SDV[0]);
+			let D = ESDV[2] * Math.pow(10, SDV[1]);
+			let V = ESDV[3] * Math.pow(10, SDV[2]);
+
+			let cap = C(E,S,D);
+			let crg = q(V,cap);
+
+			capacity.e = ESDV[0];
+			capacity.s = ESDV[1];
+			capacity.d = ESDV[2];
+
+			capacity.draw();
+
+			document.querySelector("#result span.C").innerText = ExpToDec(cap)[0]
+			document.querySelector("#result sup.C").innerText  = ExpToDec(cap)[1]
+
+			document.querySelector("#result span.q").innerText = ExpToDec(crg)[0]
+			document.querySelector("#result sup.q").innerText  = ExpToDec(crg)[1]
+		}
+	</script>
+	<link rel="stylesheet" type="text/css" href="styles/style.css">
+</head>
+<body>
+	<div id="main">
+		<div id="capacity">
+			<canvas id="canvas"></canvas>
+			<div id="settings">
+				<table>
+					<tr>
+						<th>Величина</th>
+						<th colspan="2">Значение</th>
+						<th>Ед.изм.</th>
+					</tr>
+					<tr>
+						<td><i>ε = </i></td>
+						<td>
+							<input 
+								type="range" 
+								min="1.0" 
+								max="255.0" 
+								class="ESDV val_elem" 
+								value="1.0"
+								id="r_eps"
+							>
+						</td>
+						<td><label for="r_eps"></label></td>
+						<td>-</td>
+					</tr>
+					<tr>
+						<td><i>s = </i></td>
+						<td>
+							<input 
+								type="range" 
+								min="1.0" 
+								max="200.0" 
+								class="ESDV val_elem" 
+								value="1.0"
+								id="r_sq"
+							>
+						</td>
+						<td><label for="r_sq"></label></td>
+						<td>
+							<select class="values val_elem">
+								<option value="-6" selected>мм&sup2</option>
+								<option value="-4">cм&sup2</option>
+								<option value="0">м&sup2</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td><i>d = </i></td>
+						<td>
+							<input 
+								type="range" 
+								min="1.0" 
+								max="100.0" 
+								class="ESDV val_elem" 
+								value="1.0"
+								id="r_dist"
+							>
+						</td>
+						<td><label for="r_dist"></label></td>
+						<td>
+							<select class="values val_elem">
+								<option value="-3" selected>мм</option>
+								<option value="-2">cм</option>
+								<option value="0">м</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td><i>V = </i></td>
+						<td><input type="number" min="1.0" class="ESDV val_elem" value="1.0"></td>
+						<td><span class="_value"></span></td>
+						<td>
+							<select class="values val_elem">
+								<option value="-3">мВ</option>
+								<option value="0" selected>В</option>
+							</select>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div id="result">
+			C = <span class="C"></span><sup class="C"></sup><br>
+			q = <span class="q"></span><sup class="q"></sup>
+		</div>
+	</div>
+</body>
+</html>
